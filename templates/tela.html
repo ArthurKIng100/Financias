@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Dinheiro</title>
+</head>
+<body>
+    <main class="container">
+        <h1>Organizador de finanças</h1>
+
+        <form action="/" method="POST" class="formulario">
+            <input type="hidden" name="acao" value="definir_saldo">
+            <div class="campo">
+                <label for="saldo_disponivel">Quanto você tem (R$):</label>
+                <input
+                    type="number"
+                    id="saldo_disponivel"
+                    name="saldo_disponivel"
+                    step="0.01"
+                    min="0"
+                    value="{{ '%.2f'|format(saldo_inicial) }}"
+                    required
+                >
+            </div>
+            <button type="submit" class="btn-salvar">Atualizar valor</button>
+        </form>
+
+        <form action="/" method="POST" class="formulario">
+            <input type="hidden" name="acao" value="adicionar_gasto">
+            <div class="campo">
+                <label for="valor">Valor:</label>
+                <input type="number" id="valor" name="valor" step="0.01" min="0.01" required>
+            </div>
+
+            <div class="campo">
+                <label for="categoria">Categoria:</label>
+                <select id="categoria" name="categoria" required>
+                    <option value="">Selecione...</option>
+                    <option value="comida">Comida</option>
+                    <option value="transporte">Transporte</option>
+                    <option value="lazer">Lazer</option>
+                    <option value="fixos">Fixos</option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label for="data">Data:</label>
+                <input type="date" id="data" name="data" required>
+            </div>
+
+            <button type="submit" class="btn-salvar">Salvar</button>
+        </form>
+
+        <form action="/" method="POST" class="acoes-limpar">
+            <input type="hidden" name="acao" value="limpar">
+            <button type="submit" class="btn-limpar" formnovalidate>Limpar tudo</button>
+        </form>
+
+        <section class="resumo">
+            <h2>Saldo restante: R$ {{ "%.2f"|format(saldo_atual) }}</h2>
+            <h2>Total gasto: R$ {{ "%.2f"|format(total) }}</h2>
+            
+            <ul>
+               {% for item in itens_resumo %}
+                <li class="item-categoria">
+                    <div class="info-categoria">
+                        <span><strong>{{ item.nome }}</strong> — R$ {{ "%.2f"|format(item.valor) }}</span>
+                        <span class="porcentagem">{{ item.percentual }}%</span>
+                    </div>
+                    <div class="barra-fundo">
+                        <div
+                            class="barra-preenchida barra-{{ item.slug }}"
+                            style="width: {{ item.percentual }}%;"
+                        ></div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="historico">
+            <h2>Gastos registrados</h2>
+
+            <ul>
+                {% for lancamento in lancamentos %}
+                <li>
+                    <span>{{ lancamento.data() }}</span> —
+                    <strong>{{ lancamento.categoria() }}</strong>:
+                    R$ {{ "%.2f"|format(lancamento.valor()) }}
+                </li>
+                {% else %}
+                <li>Nenhum gasto registrado ainda.</li>
+                {% endfor %}
+            </ul>
+        </section>
+    </main>
+</body>
+</html>
